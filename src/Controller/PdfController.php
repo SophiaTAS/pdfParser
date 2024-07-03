@@ -49,7 +49,22 @@ class PdfController extends AbstractController
         // Obtenir les textes pour déboguer
         $text = $pdf->getText();
 dd($text, $details);
-        // Découper le PDF en pages individuelles et les sauvegarder dans un répertoire spécifique
+
+        return $this->render('pdf/view.html.twig', [
+            'filename' => $filename,
+        ]);
+    }
+
+    #[Route('/pdf/cut/{filename}', name: 'pdf_cuter')]
+    public function cutePdf(string $filename): Response
+    {
+        $pdfDirectory = $this->getParameter('pdf_directory');
+        $filePath = $pdfDirectory . '/' . $filename;
+
+        if (!file_exists($filePath)) {
+            throw $this->createNotFoundException('The file does not exist');
+        }
+        
         // Découper le PDF en pages individuelles et les sauvegarder dans un répertoire spécifique
         $outputDirectory = $pdfDirectory;
         if (!is_dir($outputDirectory)) {
@@ -72,7 +87,7 @@ dd($text, $details);
  // Débogage des détails et du texte du PDF
  dd('Pages découpées et sauvegardées dans ' . $outputDirectory);
 
-        return $this->render('pdf/view.html.twig', [
+        return $this->render('pdf/cut.html.twig', [
             'filename' => $filename,
         ]);
     }
