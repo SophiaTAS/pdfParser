@@ -6,6 +6,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\PdfParserService;
+use ReflectionClass;
+use setasign\Fpdi\Tcpdf\Fpdi;
 use Smalot\PdfParser\Parser;
 
 class PdfController extends AbstractController
@@ -46,7 +48,29 @@ class PdfController extends AbstractController
         $details = $pdf->getDetails();
         // Obtenir les textes pour déboguer
         $text = $pdf->getText();
-        dd($text);
+dd($text, $details);
+        // Découper le PDF en pages individuelles et les sauvegarder dans un répertoire spécifique
+        // Découper le PDF en pages individuelles et les sauvegarder dans un répertoire spécifique
+        $outputDirectory = $pdfDirectory;
+        if (!is_dir($outputDirectory)) {
+            mkdir($outputDirectory, 0777, true);
+        }
+
+        $pdf = new Fpdi();
+        $pageCount = $pdf->setSourceFile($filePath);
+
+        for ($i = 1; $i <= $pageCount; $i++) {
+            $pdf = new Fpdi();
+            $pdf->setSourceFile($filePath); // Re-set the source file for each new instance
+            $pdf->AddPage();
+            $tplId = $pdf->importPage($i);
+            $pdf->useTemplate($tplId);
+
+            $outputPath = $outputDirectory . '/page_' . $i . '.pdf';
+            $pdf->Output($outputPath, 'F');
+        }
+ // Débogage des détails et du texte du PDF
+ dd('Pages découpées et sauvegardées dans ' . $outputDirectory);
 
         return $this->render('pdf/view.html.twig', [
             'filename' => $filename,
