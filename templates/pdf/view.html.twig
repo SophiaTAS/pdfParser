@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="mb-4">View PDF: {{ filename }}</h1>
+    <embed src="{{ asset('uploads/pdf/' ~ filename|raw) }}" type="application/pdf" width="100%" height="800px" />
+    <a href="{{ path('pdf_list') }}" class="btn btn-primary mt-3">Back to List</a>
+</div>
+{% endblock %}
